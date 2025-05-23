@@ -48,8 +48,6 @@ const sdk = require("node-appwrite");
   return res.json({ success: true, message: "User logged in" });
 }; */
 
-const fetch = require("node-fetch");
-
 module.exports = async function ({ req, res }) {
   const { email, otp } = req.bodyJson;
 
