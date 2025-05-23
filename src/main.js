@@ -67,12 +67,12 @@ module.exports = async function ({ req, res }) {
 
   const doc = data.documents.find((d) => d.email === email && d.otp === otp);
   if (!doc) {
-    return res.json({ success: false, message: "Invalid OTP" });
+    return res.send({ success: false, message: "Invalid OTP" });
   }
 
   const now = new Date().toISOString();
   if (now > doc.expireAt) {
-    return res.json({ success: false, message: "OTP expired" });
+    return res.send({ success: false, message: "OTP expired" });
   }
 
   await fetch(
@@ -86,5 +86,5 @@ module.exports = async function ({ req, res }) {
     }
   );
 
-  return res.json({ success: true, message: "User logged in" });
+  return res.send({ success: true, message: "User logged in" });
 };
