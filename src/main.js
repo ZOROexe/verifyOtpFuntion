@@ -12,7 +12,7 @@ module.exports = async function ({ req, res }) {
   console.log("Req body", req.bodyJson);
   console.log("req", req);
 
-  const { email, otp } = JSON.parse(req.bodyJson);
+  const { email, otp } = req.bodyJson;
 
   const documents = await database.listDocuments(
     process.env.DATABASE_ID,
