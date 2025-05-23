@@ -17,6 +17,7 @@ module.exports = async function ({ req, res }) {
   const documents = await database.listDocuments(
     process.env.DATABASE_ID,
     process.env.COLLECTION_ID,
+    [],
     [sdk.Query.equal("email", email), sdk.Query.equal("otp", otp)]
   );
 
