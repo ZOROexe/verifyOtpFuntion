@@ -48,43 +48,63 @@ const sdk = require("node-appwrite");
   return res.json({ success: true, message: "User logged in" });
 }; */
 
+const sdk = require("node-appwrite");
+
 module.exports = async function ({ req, res }) {
-  const { email, otp } = req.bodyJson;
+  try {
+    const { email, otp } = req.bodyJson;
 
-  const response = await fetch(
-    `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.DATABASE_ID}/collections/${process.env.COLLECTION_ID}/documents`,
-    {
-      method: "GET",
-      headers: {
-        "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID,
-        "X-Appwrite-Key": process.env.APPWRITE_API_KEY,
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(
+      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.DATABASE_ID}/collections/${process.env.COLLECTION_ID}/documents`,
+      {
+        method: "GET",
+        headers: {
+          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID,
+          "X-Appwrite-Key": process.env.APPWRITE_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+    console.log("Fetched documents:", data);
+
+    const doc = data.documents.find((d) => d.email === email && d.otp === otp);
+    if (!doc) {
+      return res.send(
+        JSON.stringify({ success: false, message: "Invalid OTP" })
+      );
     }
-  );
 
-  const data = await response.json();
-
-  const doc = data.documents.find((d) => d.email === email && d.otp === otp);
-  if (!doc) {
-    return res.send({ success: false, message: "Invalid OTP" });
-  }
-
-  const now = new Date().toISOString();
-  if (now > doc.expireAt) {
-    return res.send({ success: false, message: "OTP expired" });
-  }
-
-  await fetch(
-    `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.DATABASE_ID}/collections/${process.env.COLLECTION_ID}/documents/${doc.$id}`,
-    {
-      method: "DELETE",
-      headers: {
-        "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID,
-        "X-Appwrite-Key": process.env.APPWRITE_API_KEY,
-      },
+    const now = new Date().toISOString();
+    if (now > doc.expireAt) {
+      return res.send(
+        JSON.stringify({ success: false, message: "OTP expired" })
+      );
     }
-  );
 
-  return res.send({ success: true, message: "User logged in" });
+    await fetch(
+      `${process.env.APPWRITE_ENDPOINT}/databases/${process.env.DATABASE_ID}/collections/${process.env.COLLECTION_ID}/documents/${doc.$id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "X-Appwrite-Project": process.env.APPWRITE_PROJECT_ID,
+          "X-Appwrite-Key": process.env.APPWRITE_API_KEY,
+        },
+      }
+    );
+
+    return res.send(
+      JSON.stringify({ success: true, message: "User logged in" })
+    );
+  } catch (err) {
+    console.error("Error in OTP verification function:", err);
+    return res.send(
+      JSON.stringify({
+        success: false,
+        message: "Server error",
+        error: err.message,
+      })
+    );
+  }
 };
