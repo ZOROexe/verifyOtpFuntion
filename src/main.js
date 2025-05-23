@@ -11,7 +11,7 @@ module.exports = async function ({ req, res }) {
   const account = new sdk.Account(client);
 
   console.log("Req body", req.bodyJson);
-  console.log("req", req);
+  /* console.log("req", req); */
 
   const { email, otp } = req.bodyJson;
 
