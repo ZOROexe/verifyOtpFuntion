@@ -4,7 +4,8 @@ module.exports = async function ({ req, res }) {
   const client = new sdk.Client()
     .setEndpoint(process.env.APPWRITE_ENDPOINT)
     .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setKey(process.env.APPWRITE_API_KEY)
+    .setSelfSigned(true);
 
   const database = new sdk.Databases(client);
   const account = new sdk.Account(client);
@@ -17,7 +18,6 @@ module.exports = async function ({ req, res }) {
   const documents = await database.listDocuments(
     process.env.DATABASE_ID,
     process.env.COLLECTION_ID,
-    [],
     [sdk.Query.equal("email", email), sdk.Query.equal("otp", otp)]
   );
 
